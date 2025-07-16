@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      class Phone {
+        get price() {
+          console.log("read price");
+          return 1111;
+        }
+        set price(newVal) {
+          console.log("change price");
+        }
+      }
+      let s = new Phone();
+      console.log(s.price); //read price
+      //s.price = "free";
+    </script>
+  </body>
+</html>

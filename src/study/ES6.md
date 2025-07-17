@@ -1,5 +1,478 @@
 # ES6
 
+## let
+
+###### 变量声明
+
+```javascript
+let a;
+let b,c,d;
+let e = 100;
+let f = 521, g = 'iiiii', h = [];
+```
+
+###### 1.变量不能重复声明
+
+```javascript
+let star = 'lzx';
+let star = 'xz';//报错
+```
+
+###### 2.块级作用域
+
+```javascript
+{
+    let girl = 'zyq';
+}
+console.log(girl);//报错
+```
+
+###### 3.不存在变量提升
+
+```javascript
+console.log(song);//报错
+let song = 'ladr';
+```
+
+###### 4.不影响作用域链
+
+```javascript
+{
+    let school = 'sgg';
+    function fn(){
+        console.log(school);//块内没有school，向上寻找
+    }
+    fn();
+}
+```
+
+
+
+## const
+
+常量声明
+
+```javascript
+const SCHOOL = 'sgg';
+```
+
+###### 1.必须赋初始值
+
+```javascript
+const a;//报错
+```
+
+###### 2.一般常量使用大写
+
+```javascript 
+const A = 100;
+```
+
+###### 3.常量的值不能修改
+
+```javascript
+SCHOOL = 'ATG'//报错
+```
+
+###### 4.块级作用域
+
+```javascript
+{
+    const PLAYER = 'UZI';
+}
+console.log(PLAYER);//报错
+```
+
+###### 5.对于数组和对象的元素修改不算对常量的修改
+
+```javascript
+const TEAM = ['UZI','MLXG','Ming','letme'];
+TEAM.push('Meiko');
+```
+
+
+
+## 变量解构赋值
+
+###### 1.数组的解构
+
+```javascript
+cosnt F$ = ['x','l','z','s'];
+let ['xiao','liu','zhao','song'] = F4;
+console.log(xiao);//x
+console.log(liu);//l
+console.log(zhao);//z
+console.log(song);//s
+```
+
+###### 2.对象的解构
+
+```javascript
+const zhao = {
+    name:'zbs';
+    age;'nuknow';
+    xiaopin: function(){
+        console.log('play xiaopin');
+    }
+}
+let {name,age,xiaopin} = zhao;
+console.log(name);//zbs
+console.log(age);//unknow
+xiaopin();//play xiaopin
+```
+
+
+
+## 模板字符串
+
+###### 1.声明
+
+```javascript
+let str = `im string`;
+console.log(str, typeof str);//im string string
+```
+
+###### 2.内容中可以直接出现换行符
+
+```javascript
+let str = '<ul><li>xt</li><li>ml</li><li>wx</li></ul>';//报错
+let str1 = `<ul><li>xt</li><li>ml</li><li>wx</li></ul>`;
+```
+
+###### 3.变量拼接
+
+```javascript
+let lovest = 'fx';
+let out = `${lovest} is best`;
+console.log(out);//fx is best;
+```
+
+
+
+## 箭头函数
+
+```javascript
+let fn = (a,b) => {
+    return a + b;
+};
+let result = fu(1,2);
+console.log(result);//3
+```
+
+###### 1.this是静态的
+
+this始终指向函数声明时所在作用域下的this的值
+
+```javascript
+function getName(){
+    console.log(this.name);
+}
+let getName2 = () => {
+    console.log(this.name);
+}
+window.name = 'sgg';
+const school = {
+    name:'ATG';
+}
+//直接调用,this指向window
+getName();//sgg
+getName2();//sgg
+//call方法调用,call可以改变函数内部this的值
+getName.call(school);//ATG
+getName2.call(school);//sgg
+```
+
+###### 2.不能作为构造函数实例化对象
+
+```javascript
+let Person = (name,age) => {
+    this.name = name;
+    this.age = age;
+}
+let me = new Person('xiao',30);
+console.log(me);//报错，Person不是一个构造器
+```
+
+###### 3.不能使用arguments变量
+
+```javascript
+let fn = () => {
+    console.log(arguments);
+}
+fn(1,2,3);//报错，argument未定义
+```
+
+###### 4.箭头函数的简写
+
+```javascript
+//省略小括号，当形参有且只有一个
+let add = n =>{
+    return n + n;
+}
+console.log(add(9));//18
+//省略花括号，当代码体只有一条语句时,同时必须省略return，此时语句结果就是返回值
+let pow = n => n*n;
+console.log(pow(9));
+```
+
+###### 实例
+
+```html
+<div id="ad"></div>
+<sript>
+    let ad = document.querySelectById('ad');
+    ad.addEventLietener("click",function(){
+        //保存this值 
+        let _this = this;
+        setTimeout(function{
+            console.log(this);
+            _this.style.background = 'pink';
+        },2000)
+    })
+</sript>
+//使用箭头函数
+<script>
+    let ad = document.querySelectById('ad');
+    ad.addEventLietener("click",function(){
+        setTimeout(() => {
+            this.style.background = 'pink';//
+        },2000)
+    })
+</script>
+```
+
+```html
+<div id="ad"></div>
+<script>
+    let ad = document.querySelectById('ad');
+    ad.addEventLietener("click",function(){
+        const arr = [1,6,9,10,100,25];
+        const result = arr.filter(function(item){
+            if(item%2 === 0){
+                return true;
+            }else{
+                return false;
+            }
+        })
+        console.log(result);
+    })
+</script>
+<script>
+    let ad = document.querySelectById('ad');
+    ad.addEventLietener("click",function(){
+        const arr = [1,6,9,10,100,25];
+        const result = arr.filter(item => item % 2 === 0);
+        console.log(result);
+    })
+</script>
+```
+
+箭头函数适合与this无关的回调。定时器，数组的方法回调
+
+箭头函数不适合与this有关的回调。事件回调，对象的方法
+
+
+
+## 拓展运算符
+
+拓展运算符能将数组转化为逗号分隔的参数序列
+
+```javascript
+const tf = ['yy','ww','wj'];
+function cw(){
+    console.log(arguments);
+}
+cw(...tf);//cw('yy','ww','wj');
+```
+
+###### 实例
+
+1.数组的合并
+
+```javascript
+const kz = ['wtl','xy'];
+const fh = ['zy','lh'];
+const zxmzf = [...kz,...fh];
+console.log(zxmzf);//[['wtl','xy','zy','lh'];
+```
+
+2.数组的克隆
+
+```javascript
+const szh = ['e','g','m'];
+const syc = [...szh];//浅拷贝
+console.log(syc)//['e','g','m']
+```
+
+3.将伪数组转为真数组
+
+```html
+<div></div>
+<div></div>
+<div></div>
+<script>
+    const divs = document.querySelectAll('div');
+    cosnt divArr = [...divs]l
+    console.log(divArr);//也可以转化arguments
+</script>
+```
+
+
+
+## Promise
+
+Promise时ES6引入异步编程的新解决方案，语法上Promise时构造还能输，用来封装异步操作并且可以获得其成功或者失败的结果
+
+###### 实例化Promise对象
+
+```javascript
+const p = new Promise(function(resolve,reject){
+    setTimeout(function(){
+        let data = 'user data';
+        resolve(data);
+    },2000)
+})
+p.then(function(value){
+    console.log(value);//user data
+},function(reason){})
+```
+
+###### Promise封装读取文件
+
+```javascript
+//1.引入fs模块
+const fs = require('fs');
+
+//2.调用方法读取文件
+fs.readFile('./resources/wx.md',(err,data)=>{
+    //如果错误抛出异常
+    if(err) throw err;
+    //没错输出内容
+    console.log(data,toString());
+})
+
+//3.使用Promise封装
+const p = new Promise(function(resolve,reject){
+    fs.readFile("./resources/wx.md",(err,data)=>{
+        if(err) reject(err);
+        resolve(data);
+    });
+});
+p.then(function(value){
+    console.log(value.toString());
+},function(reason){
+    console.log('read error');
+})
+```
+
+###### Promise封装ajax
+
+```javascript
+const p = new Promise((resolve, reject) => {
+        //1.创建对象
+        const xhr = new XMLHttpRequest();
+        //2.初始化
+        xhr.open("GET", "https://api.apiopen.top/getJoke");
+        //3.发送
+        xhr.send();
+        //4.绑定事件，处理响应结果
+        xhr.onreadystatechange = function () {
+          //判断
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(xhr.response);
+            } else {
+              reject(xhr.status);
+            }
+          }
+        };
+});
+p.then(function(value){
+    console.log(value);
+},function(reason){
+    console.log(reason);
+})
+```
+
+###### Promise的then方法
+
+```javascript
+const p = new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+        resolve('user data');
+    },2000)
+});
+//then方法的返回结果是Promise对象，对象状态由回调函数的执行结果决定
+//1.如果回调函数中返回的结果是非Promise类型的属性，状态为成功，返回值为对象的成功值，但是抛出错误时status只会是rejected
+const result = p.then(value=>{
+    console.log(value);
+    return 'success';
+},reason=>{
+    console.log(reason);
+})
+console.log(result);//Promise对象，值为success
+```
+
+###### 链式调用
+
+```javascript
+p.then(value=>{},reason=>{}).then(value=>{})
+```
+
+###### 实例
+
+```javascript
+
+const fs = require('fs');
+//回调地狱
+fs.readFile('./resource/wx.md',(err,data1)=>{
+    fs.readFile('./resources/cyg.md',(err,data1)=>{
+        fs.readFile('./resources/gsyg.md',(err,data1)=>{
+            const result = data1 + data2 = daata3;
+            console.log(result);
+        })
+    })
+})
+
+//Promise实现
+const p = new Promise((resolve,reject)=>{
+    fs.readFile("./resources/wx.md",(err,data)=>{
+        resolve(data);
+    })
+})
+p.then(value=>{
+    return new Promise((resolve,reject)=>{
+        fs.readFile("./resources/cys.md",(err,data)=>{
+            resolve([value,data]);
+        })
+    })
+}).then(value=>[
+     return new Promise((resolve,reject)=>{
+        fs.readFile("./resources/gsyg.md",(err,data)=>{
+            value.push(data);
+            resolve(value);
+        })
+    })
+]).then(value=>{
+    console.log(value.join('\n'))
+})
+```
+
+###### catch方法
+
+```javascript
+const p = new Promise((resolve,reject)=>{
+    setTime(()=>{
+        reject("error");
+    },1000)
+})
+p.catch(reason=>[
+    console.warn(reason);
+])
+```
+
+
+
 ## Set
 
 ES6 提供了新的数据解构 Set（集合）。类似于数组，但成员的值是唯一的，集合实现了 iterator 接口，所以可以使用【拓展运算符】和【for...of】进行遍历

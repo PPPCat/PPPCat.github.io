@@ -7,18 +7,25 @@
   </head>
   <body>
     <script>
-      class Phone {
-        get price() {
-          console.log("read price");
-          return 1111;
-        }
-        set price(newVal) {
-          console.log("change price");
-        }
-      }
-      let s = new Phone();
-      console.log(s.price); //read price
-      //s.price = "free";
+      const p = new Promise((resolve, reject) => {
+        //1.创建对象
+        const xhr = new XMLHttpRequest();
+        //2.初始化
+        xhr.open("GET", "https://api.apiopen.top/getJoke");
+        //3.发送
+        xhr.send();
+        //4.绑定事件，处理响应结果
+        xhr.onreadystatechange = function () {
+          //判断
+          if (xhr.readyState === 4) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              console.log(xhr.response);
+            } else {
+              console.error(xhr.status);
+            }
+          }
+        };
+      });
     </script>
   </body>
 </html>

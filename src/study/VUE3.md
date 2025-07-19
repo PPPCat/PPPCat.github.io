@@ -79,7 +79,7 @@ defineProps({
 
 
 
-### defineEmits：子向父通信
+#### defineEmits：子向父通信
 
 在 Vue3 中，`emits` 属性用于定义一个组件可以触发的事件。
 
@@ -198,7 +198,7 @@ function updateValue(event) {
 
 
 
-### defineExpose：暴露组件内部方法
+#### defineExpose：暴露组件内部方法
 
 在 Vue3 中，`expose()` 函数是一个用于在组合式 API 中暴露组件内部方法和属性的工具。
 
@@ -310,3 +310,258 @@ defineExpose({
 1. **多次调用 expose()**：如果多次调用 `expose()`，只有最后一次调用的内容会被暴露
 2. **与 ref 结合使用**：在父组件中，可以通过 `ref` 引用子组件，并调用其暴露的方法
 3. **兼容性**：`expose()` 是 Vue3 的新特性，确保你的项目使用的是 Vue3 及以上版本
+
+
+
+### 计算属性computed
+
+在 Vue 3 的组合式 API 中，`computed` 是一个非常重要的**响应式** API，用于创建基于其他响应式数据的计算属性。一般存在return的函数建议替换为计算属性
+
+```html
+<template>
+  <div>
+    <p>原始值: {{ count }}</p>
+    <p>计算值: {{ doubleCount }}</p>
+    <button @click="count++">增加计数</button>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+
+const count = ref(0)
+  
+// 创建一个计算属性
+const doubleCount = computed(() => count.value * 2)
+</script>
+```
+
+##### 可写计算属性
+
+默认情况下，计算属性是只读的。但你可以通过提供一个带有 `get` 和 `set` 函数的对象来创建一个可写的计算属性
+
+```javascript
+const firstName = ref('张')
+const lastName = ref('三')
+
+const fullName = computed({
+  // getter
+  get() {
+    return firstName.value + ' ' + lastName.value
+  },
+  // setter
+  set(newValue) {
+    [firstName.value, lastName.value] = newValue.split(' ')
+  }
+})
+
+// 现在可以这样设置
+fullName.value = '李 四' // firstName 变为 '李'，lastName 变为 '四'
+```
+
+##### 计算属性的缓存特性
+
+计算属性会基于它们的依赖关系进行缓存，只有当依赖发生变化时才会重新计算
+
+```javascript
+const now = computed(() => Date.now())
+// 这个计算属性永远不会更新，因为它没有依赖任何响应式数据
+```
+
+##### 计算属性 vs 方法
+
+计算属性和方法的主要区别在于：
+
+1. **计算属性**：有缓存，只有依赖变化时才重新计算
+2. **方法**：每次调用都会执行函数体
+
+```javascript
+// 计算属性 - 有缓存
+const computedMessage = computed(() => '计算属性: ' + Date.now())
+
+// 方法 - 无缓存
+const methodMessage = () => '方法: ' + Date.now()
+```
+
+##### 注意事项
+
+1. **避免在计算属性中产生副作用**：计算属性应该是纯函数，不要在其中执行异步操作或修改DOM
+2. **避免直接修改计算属性值**：除非你明确提供了setter
+3. **计算属性应该返回一个值**：不像方法，计算属性必须返回一个值
+
+
+
+### watch
+
+`watch` 是 Vue 3 组合式 API 中用于观察和响应数据变化的强大工具
+
+```html
+<template>
+  <div>
+    <p>原始值: {{ count }}</p>
+    <p>计算值: {{ doubleCount }}</p>
+    <button @click="count++">增加计数</button>
+  </div>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue'
+
+const count = ref(0)
+
+// 观察单个 ref
+watch(count, (newValue, oldValue) => {
+  console.log(`计数从 ${oldValue} 变为 ${newValue}`)
+})
+</script>
+```
+
+#### 观察不同类型的数据源
+
+##### 观察 ref
+
+```javascript
+const count = ref(0)
+
+watch(count, (newVal, oldVal) => {
+  console.log('count变化:', oldVal, '→', newVal)
+})
+```
+
+##### 观察 reactive 对象
+
+watch不能直接观察对象,需要通过匿名函数监听
+
+```javascript
+const state = reactive({ count: 0 })
+
+// 观察整个 reactive 对象
+watch(() => state.count, (newVal, oldVal) => {
+  console.log('count变化:', oldVal, '→', newVal)
+})
+```
+
+##### 观察 getter 函数
+
+```javascript
+const state = reactive({ 
+  count: 0,
+  double: computed(() => state.count * 2)
+})
+
+watch(() => state.double, (newVal) => {
+  console.log('double值变为:', newVal)
+})
+```
+
+##### 观察多个数据源
+
+```javascript
+const count = ref(0)
+const name = ref('张三')
+
+// 观察多个值
+watch([count, name], ([newCount, newName], [oldCount, oldName]) => {
+  console.log(`count: ${oldCount}→${newCount}`)
+  console.log(`name: ${oldName}→${newName}`)
+})
+```
+
+##### 深度观察对象
+
+```javascript
+const user = reactive({
+  name: '李四',
+  address: {
+    city: '北京'
+  }
+})
+
+// 深度观察
+watch(
+  () => user,
+  (newVal, oldVal) => {
+    console.log('用户信息变化:', oldVal, '→', newVal)
+  },
+  { deep: true }
+)
+```
+
+##### 立即执行回调
+
+```javascript
+const count = ref(0)
+
+// 立即执行一次
+watch(count, (newVal) => {
+  console.log('当前值:', newVal)
+}, { immediate: true })
+```
+
+##### 观察响应式数组
+
+```javascript
+const list = reactive([1, 2, 3])
+
+watch(
+  () => [...list], // 创建数组副本
+  (newVal, oldVal) => {
+    console.log('数组变化:', oldVal, '→', newVal)
+  }
+)
+```
+
+##### 停止观察
+
+```javascript
+const count = ref(0)
+
+// watch 返回一个停止函数
+const stop = watch(count, (newVal) => {
+  console.log('count变化:', newVal)
+})
+
+// 调用停止函数来停止观察
+stop()
+```
+
+##### 副作用清理
+
+```javascript
+const id = ref(1)
+
+watch(id, (newId, oldId, onCleanup) => {
+  const timer = setTimeout(() => {
+    console.log(`获取ID ${newId} 的数据`)
+  }, 1000)
+  
+  // 清理函数
+  onCleanup(() => {
+    clearTimeout(timer)
+  })
+})
+```
+
+##### watchEffect
+
+`watchEffect` 是 `watch` 的简化版，自动追踪依赖
+
+```javascript
+import { watchEffect } from 'vue'
+
+const count = ref(0)
+
+// 自动追踪count
+watchEffect(() => {
+  console.log('count值:', count.value)
+})
+```
+
+##### watch vs watchEffect
+
+|   特性   |          watch           |       watchEffect        |
+| :------: | :----------------------: | :----------------------: |
+| 依赖收集 |         显式指定         |         自动收集         |
+| 立即执行 | 需要配置 immediate: true |       总是立即执行       |
+|  新旧值  |        提供新旧值        |       只提供当前值       |
+| 适用场景 |  需要精确控制观察目标时  | 依赖自动追踪的副作用场景 |

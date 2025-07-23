@@ -293,9 +293,9 @@ watchEffect(() => {
 
 
 
-### 1.3生命周期
+### 1.3 生命周期
 
-#### 1.3.1常见的生命周期钩子对应表
+#### 1.3.1 常见的生命周期钩子对应表
 
 | Vue 2 选项式    | Vue 3 组合式 API                                             |
 | --------------- | ------------------------------------------------------------ |
@@ -311,7 +311,7 @@ watchEffect(() => {
 | `activated`     | `onActivated()`（仅 `<keep-alive>`）                         |
 | `deactivated`   | `onDeactivated()`（仅 `<keep-alive>`）                       |
 
-#### 1.3.2code view
+#### 1.3.2 code view
 
 ```html
 <template>
@@ -352,9 +352,9 @@ watchEffect(() => {
 
 
 
-#### 1.3.3父子组件生命周期的执行顺序
+#### 1.3.3 父子组件生命周期的执行顺序
 
-##### 1.3.3.1执行顺序总览（挂载阶段）
+##### 1.3.3.1 执行顺序总览（挂载阶段）
 
 父子组件挂载时生命周期钩子执行顺序
 
@@ -369,7 +369,7 @@ watchEffect(() => {
 
 
 
-##### 1.3.3.2更新阶段顺序（比如 prop 改变时）
+##### 1.3.3.2 更新阶段顺序（比如 prop 改变时）
 
 ```
 父 onBeforeUpdate
@@ -379,7 +379,7 @@ watchEffect(() => {
 
 ```
 
-##### 1.3.3.3卸载阶段顺序
+##### 1.3.3.3 卸载阶段顺序
 
 ```
 父 onBeforeUnmount
@@ -768,9 +768,129 @@ onMounted(async () => {
 
 
 
+## 2Pinia
+
+Pinia 是 Vue 3 的官方状态管理库，用来**跨组件共享数据（状态）**
 
 
 
+### 2.1Pinia使用
 
-### 
+#### 2.1.1安装 Pinia
+
+```bash
+npm install pinia
+```
+
+在 `main.js` 中引入并使用
+
+```javascript
+import { createPinia } from 'pinia'
+const app = createApp(App)
+app.use(createPinia())
+```
+
+#### 2.1.2创建一个 Store
+
+文件名：`src/stores/counter.js`
+
+```javascript
+import { defineStore } from 'pinia'
+
+export const useCounterStore = defineStore('counter', {
+  state: () => ({
+    count: 0
+  }),
+  getters: {
+    double: (state) => state.count * 2
+  },
+  actions: {
+    increment() {
+      this.count++
+    }
+  }
+})
+```
+
+#### 2.1.3在组件中使用 Store
+
+```vue
+<script setup>
+import { useCounterStore } from '@/stores/counter'
+const counter = useCounterStore()
+</script>
+
+<template>
+  <h2>count = {{ counter.count }}</h2>
+  <h2>double = {{ counter.double }}</h2>
+  <button @click="counter.increment()">+1</button>
+</template>
+```
+
+
+
+### 2.2理解状态管理的意义
+
+Vue 组件之间传值有两种方式：
+
+- 父子通信用 `props` / `emit`
+- 多个组件共享状态时（如登录信息、购物车），就需要 **状态管理**
+
+Pinia 就是帮你在全局管理这些 **可共享的状态**
+
+
+
+### 2.3Pinia和VUEX对比
+
+| 功能/特性              | **Vuex**（经典）                      | **Pinia**（Vue 3 推荐）                   |
+| ---------------------- | ------------------------------------- | ----------------------------------------- |
+| 📦 状态结构             | state / getters / mutations / actions | state / getters / actions（无 mutations） |
+| 🔧 语法复杂度           | 高（需要分离 mutation、action）       | 低（直接操作 state，无 mutation）         |
+| 🚀 TypeScript 支持      | 支持但配置繁琐                        | 内建优秀的类型推导                        |
+| 🧩 模块化               | 手动配置 `modules`                    | 每个 store 就是一个模块                   |
+| 📘 文档易读性           | 中等                                  | 简洁、清晰                                |
+| ⚡ Composition API 支持 | 不太适配                              | 原生支持，和 `<script setup>` 完美集成    |
+| 📦 体积                 | 相对大                                | 更轻量                                    |
+| 🛠️ 插件生态             | 成熟，但偏老旧                        | 新兴，正在成长                            |
+| ✅ 开发体验             | 规范但繁琐                            | 简单、直观                                |
+| 🔄 热重载               | 需要额外配置                          | 默认支持                                  |
+
+
+
+**状态结构区别示例**
+
+Vuex 示例（必须写 mutation 才能改 state）
+
+```javascript
+const store = new Vuex.Store({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++
+    }
+  },
+  actions: {
+    incrementAsync({ commit }) {
+      setTimeout(() => commit('increment'), 1000)
+    }
+  }
+})
+```
+
+Pinia 示例（直接在 actions 修改 state）
+
+```javascript
+import { defineStore } from 'pinia'
+
+export const useCounterStore = defineStore('counter', {
+  state: () => ({ count: 0 }),
+  actions: {
+    increment() {
+      this.count++
+    }
+  }
+})
+```
 
